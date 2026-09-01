@@ -448,10 +448,7 @@ class GameView(context: Context) : View(context) {
             lastFrame = now
 
         val delta =
-            ((now - lastFrame)
-                .coerceAtMost(40L))
-                / 1000f
-
+            ((now - lastFrame).coerceAtMost(40L)) / 1000f
         lastFrame = now
 
         playerX +=
