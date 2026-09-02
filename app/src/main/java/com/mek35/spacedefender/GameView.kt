@@ -359,7 +359,7 @@ class GameView(context: Context) : View(context) {
         if (hits.isEmpty()) return
         enemies.removeAll(hits.toSet())
         if (now < shieldUntil) { hits.forEach { makeExplosion(it.x, it.y, 8) }; return }
-        -= hits.fold(0) { total, enemy -> total + when (enemy.type) { EnemyType.TANK -> 25; EnemyType.ZIGZAG -> 20; else -> 15 } }
+        health -= hits.fold(0) { total, enemy -> total + when (enemy.type) { EnemyType.TANK -> 25; EnemyType.ZIGZAG -> 20; else -> 15 } }
         combo = 1
         makeExplosion(playerX, playerY, 12); tone.startTone(ToneGenerator.TONE_PROP_NACK, 100)
         if (health <= 0) endGame()
