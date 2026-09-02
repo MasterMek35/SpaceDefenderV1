@@ -1,21 +1,4 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-}
-
-android {
-    namespace = "com.mek35.spacedefender"
-    compileSdk = 35
-
-    defaultConfig {
-        applicationId = "com.mek35.spacedefender"
-        minSdk = 23
-        targetSdk = 35
-        versionCode = 2
-        versionName = "2.0"
-    }
-}
-
-kotlin {
-    jvmToolchain(17)
+    id("com.android.application") version "8.7.3" apply false
+    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
 }
