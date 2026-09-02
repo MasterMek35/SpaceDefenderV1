@@ -27,6 +27,8 @@ class GameView(context: Context) : View(context) {
     private var level = 1
     private var health = 100
     private var best = 0
+    private var combo = 1
+    private var lastKillAt = 0L
     private var shieldUntil = 0L
     private var rapidUntil = 0L
     private var spreadUntil = 0L
@@ -109,7 +111,7 @@ class GameView(context: Context) : View(context) {
 
     private fun drawMenu(canvas: Canvas) {
         text.textSize = width * .10f; text.color = cyan.color
-        canvas.drawText("SPACE DEFENDER V2", width / 2f, height * .23f, text)
+        canvas.drawText("SPACE DEFENDER V4", width / 2f, height * .23f, text)
         text.textSize = width * .046f; text.color = white.color
         canvas.drawText("BOSSES • POWER-UPS • LEVELS", width / 2f, height * .30f, text)
         drawButton(canvas, height * .52f, "PLAY")
@@ -141,6 +143,11 @@ class GameView(context: Context) : View(context) {
         text.textAlign = Paint.Align.LEFT; text.textSize = width * .036f; text.color = white.color
         canvas.drawText("SCORE $score", 20f, 38f, text)
         canvas.drawText("LEVEL $level", 20f, 76f, text)
+        if (combo > 1) {
+            text.textAlign = Paint.Align.RIGHT; text.textSize = width * .030f; text.color = yellow.color
+            canvas.drawText("COMBO x$combo", width - 20f, 76f, text)
+            text.textAlign = Paint.Align.LEFT
+        }
 
         val barLeft = width * .30f; val barTop = 18f; val barRight = width * .70f; val barBottom = 42f
         val back = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(45, 45, 60) }
@@ -328,7 +335,11 @@ class GameView(context: Context) : View(context) {
                 deadBullets.add(bullet); enemy.hp -= bullet.damage
                 if (enemy.hp <= 0) {
                     deadEnemies.add(enemy)
-                    score += when (enemy.type) { EnemyType.SCOUT -> 10; EnemyType.TANK -> 25; EnemyType.ZIGZAG -> 20; EnemyType.BOSS -> 300 }
+                    val nowKill = System.currentTimeMillis()
+                    combo = if (nowKill - lastKillAt < 1600L) (combo + 1).coerceAtMost(5) else 1
+                    lastKillAt = nowKill
+                    val basePoints = when (enemy.type) { EnemyType.SCOUT -> 10; EnemyType.TANK -> 25; EnemyType.ZIGZAG -> 20; EnemyType.BOSS -> 300 }
+                    score += basePoints * combo
                     makeExplosion(enemy.x, enemy.y, if (enemy.type == EnemyType.BOSS) 42 else 15)
                     if (enemy.type == EnemyType.BOSS) {
                         health = (health + 30).coerceAtMost(100); spawnGuaranteedPowerUp(enemy.x, enemy.y)
@@ -349,6 +360,7 @@ class GameView(context: Context) : View(context) {
         enemies.removeAll(hits.toSet())
         if (now < shieldUntil) { hits.forEach { makeExplosion(it.x, it.y, 8) }; return }
         health -= hits.sumOf { when (it.type) { EnemyType.TANK -> 25; EnemyType.ZIGZAG -> 20; else -> 15 } }
+        combo = 1
         makeExplosion(playerX, playerY, 12); tone.startTone(ToneGenerator.TONE_PROP_NACK, 100)
         if (health <= 0) endGame()
     }
@@ -410,7 +422,7 @@ class GameView(context: Context) : View(context) {
     }
 
     private fun startGame() {
-        score = 0; level = 1; health = 100; shieldUntil = 0L; rapidUntil = 0L; spreadUntil = 0L; lastBossLevel = 0
+        score = 0; level = 1; health = 100; combo = 1; lastKillAt = 0L; shieldUntil = 0L; rapidUntil = 0L; spreadUntil = 0L; lastBossLevel = 0
         bullets.clear(); enemies.clear(); powerUps.clear(); particles.clear()
         playerX = width / 2f; playerY = height * .84f; targetX = playerX
         lastFrame = System.currentTimeMillis(); lastShot = 0L; lastSpawn = 0L; shooting = false
