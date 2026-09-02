@@ -1,4 +1,4 @@
-name: Build Space Defender APK
+name: Build Space Defender V4 Signed APK
 
 on:
   workflow_dispatch:
@@ -30,12 +30,20 @@ jobs:
         with:
           gradle-version: '8.10'
 
-      - name: Build debug APK
-        run: gradle :app:assembleDebug --no-daemon
+      - name: Restore signing key
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > app/release.keystore
 
-      - name: Upload APK
+      - name: Build signed release APK
+        env:
+          KEYSTORE_FILE: release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: gradle :app:assembleRelease --no-daemon
+
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: SpaceDefender-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: SpaceDefender-V4-signed-apk
+          path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
