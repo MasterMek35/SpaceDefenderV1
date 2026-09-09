@@ -11,8 +11,8 @@ android {
         applicationId = "com.mek35.spacedefender"
         minSdk = 23
         targetSdk = 35
-        versionCode = 10
-        versionName = "10.0"
+        versionCode = 30
+        versionName = "30.0"
     }
 
     signingConfigs {
