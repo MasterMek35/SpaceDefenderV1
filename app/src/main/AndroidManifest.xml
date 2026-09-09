@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:theme="@style/AppTheme"
-        android:label="Space Defender V10"
+        android:label="Space Defender V30"
         android:resizeableActivity="false"
         android:allowBackup="true">
         <activity
